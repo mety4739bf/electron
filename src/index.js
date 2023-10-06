@@ -1,5 +1,5 @@
 const { log } = require('console');
-const { app, BrowserWindow, Menu, Tray, ipcMain, Notification, autoUpdater, dialog } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, Notification } = require('electron');
 const path = require('path');
 let tray, notice;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -84,29 +84,11 @@ const createWindow = () => {
   });
 
   // 自动更新
-  const server = 'https://your-deployment-url.com'
-  const url = `${server}/update/${process.platform}/${app.getVersion()}`
-  log(url);
-  autoUpdater.setFeedURL({ url });
-  autoUpdater.checkForUpdates();
-  setInterval(() => {
-    autoUpdater.checkForUpdates();
-  }, 60000);
+  try {
+    require('update-electron-app')();
+  } catch (error) {
 
-  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-    const dialogOpts = {
-      type: 'info',
-      buttons: ['Restart', 'Later'],
-      title: 'Application Update',
-      message: process.platform === 'win32' ? releaseNotes : releaseName,
-      detail:
-        'A new version has been downloaded. Restart the application to apply the updates.'
-    }
-
-    dialog.showMessageBox(dialogOpts).then((returnValue) => {
-      if (returnValue.response === 0) autoUpdater.quitAndInstall()
-    })
-  })
+  }
 };
 
 // This method will be called when Electron has finished
